@@ -1,0 +1,34 @@
+{
+	order crowdsec first
+
+	crowdsec {
+		api_url http://crowdsec:8080
+		api_key ${CROWDSEC_API_KEY}
+	}
+}
+
+example.com {
+	log {
+		output file /var/log/caddy/access.log
+		format json
+	}
+
+	crowdsec
+
+	redir /files /files/
+
+	handle /files/* {
+		reverse_proxy /files/* filebrowser:80
+	}
+
+	redir /music /music/
+	handle /music/* {
+		reverse_proxy navidrome:4533
+	}
+
+	handle {
+		respond "404 Not Found" 404 {
+			close
+		}
+	}
+}
